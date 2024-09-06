@@ -1,0 +1,376 @@
+---
+title: "Finding Dedifferentiated Cancer Cells"
+output:
+  html_document: default
+  pdf_document: default
+date: "2024-05-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### MAGIC
+
+Markov Affinity-based Graph Imputation of Cells (MAGIC) is an algorithm for denoising high-dimensional data most commonly applied to single-cell RNA sequencing data. MAGIC learns the manifold data, using the resultant graph to smooth the features and restore the structure of the data.
+
+```{r, eval=FALSE}
+
+# Load the Seurat object from an RDS file
+seurat_obj <- readRDS("/Users/xuexiao/Desktop/Lab/Projects/Dedifferentiation/Data/Cancer_cell_in_house.rds")
+
+# Extract the expression matrix
+expression_matrix <- as.matrix(seurat_obj@assays$RNA@counts)
+head(expression_matrix[,1:10],10)
+
+# Save the expression matrix as a CSV file
+write.csv(expression_matrix, "/Users/xuexiao/Desktop/Lab/Projects/Dedifferentiation/Data/in_house_oc_data.csv")
+
+```
+
+Run MAGIC using Jupyter Notebook. Performed data filtering and normalization before imputation. Save imputed expression matrix and imported to Seurat project.
+
+```{r, eval=FALSE}
+
+# Import imputed data
+imputed_data <- read.csv("~/Library/CloudStorage/GoogleDrive-heinyxiao@gmail.com/My Drive/Lab/Projects/Dedifferentiation/Data/GSE165897_EOC_expression_matrix.csv", row.names = 1)
+head(imputed_data[,1:10],10)
+
+# Convert to a matrix
+imputed_matrix <- t(imputed_data)
+head(imputed_matrix[,1:8],8)
+
+# Extract metadata from the original Seurat object
+metadata <- seurat_obj@meta.data
+head(metadata[,1:8],8)
+table(metadata$orig.ident)
+# Align the cell names
+common_cells <- intersect(colnames(imputed_matrix), rownames(metadata))
+
+# Subset the imputed matrix
+imputed_matrix <- imputed_matrix[, common_cells]
+write.table(imputed_matrix, "/Users/xuexiao/Desktop/Lab/Projects/Dedifferentiation/Data/in_house_oc_magic.txt", sep = "\t", quote = FALSE, col.names = NA)
+
+# Subset the metadata
+metadata <- metadata[common_cells, ]
+write.table(metadata, "/Users/xuexiao/Desktop/Lab/Projects/Dedifferentiation/Data/in_house_oc_magic_metadata.txt", sep = "\t", quote = FALSE, col.names = NA)
+
+# Create a new Seurat object
+new_seurat_obj <- CreateSeuratObject(counts = imputed_matrix)
+
+# Add metadata to the new Seurat object
+new_seurat_obj <- AddMetaData(new_seurat_obj, metadata)
+
+
+```
+
+### Normalization and Dimensional Reduction
+
+```{r, eval=FALSE}
+
+# Normalize data
+new_seurat_obj <- NormalizeData(new_seurat_obj)
+
+# Find variable features
+new_seurat_obj <- FindVariableFeatures(new_seurat_obj)
+
+# Scale data
+new_seurat_obj <- ScaleData(new_seurat_obj)
+
+# Run PCA
+new_seurat_obj <- RunPCA(new_seurat_obj)
+
+# Find neighbors
+new_seurat_obj <- FindNeighbors(new_seurat_obj)
+
+# Find clusters
+new_seurat_obj <- FindClusters(new_seurat_obj, resolution = 0.5)
+
+# Run UMAP
+new_seurat_obj <- RunUMAP(new_seurat_obj, dims = 1:20)
+
+# Plot UMAP
+DimPlot(new_seurat_obj, reduction = "umap")
+
+```
+
+```{r, eval=FALSE}
+
+saveRDS(new_seurat_obj, file = "Cancer_cell_in_house_magic_cytotrace.rds")
+
+```
+
+### CytoTRACE2
+
+CytoTRACE 2 is a computational method for predicting cellular potency categories and absolute developmental potential from single-cell RNA-sequencing data.
+
+### Two systems:
+
+1.  play with resolution - subpopulation, fewer groups, see stemness score
+2.  higher resolution, unbiased trajectory (assign starting point with stem population), check non-stem population's ROR2 expression (imputed data), see which FZD \~ ROR2 (correlation), and ROR2 expr in all subpops - send to AKM
+
+CREB1 transcriptome (cut&run data, public cancer dataset) - bigger picture, also provides signatures (regulon) for dediff cells, print signatures for each subpops
+
+#### Package Installation
+
+```{r echo=TRUE, message=TRUE, warning=FALSE, results='hide'}
+#install.packages("devtools")
+#library(devtools)
+#install.packages("Seurat")
+#devtools::install_github("digitalcytometry/cytotrace2", subdir = "cytotrace2_r") 
+library(Seurat)
+library(CytoTRACE2) 
+library(ggplot2)
+
+```
+
+#### Load Data
+
+```{r}
+# Load scTour precessed expression matrix and metadata
+expression_data <- read.csv('~/Library/CloudStorage/GoogleDrive-heinyxiao@gmail.com/My Drive/Lab/Projects/Dedifferentiation/Data/GSE165897_EOC_expression_matrix.csv', row.names = 1)
+expression_data <- t(expression_data)
+head(expression_data[,1:8],8)
+metadata <- read.csv('~/Library/CloudStorage/GoogleDrive-heinyxiao@gmail.com/My Drive/Lab/Projects/Dedifferentiation/Data/GSE165897_EOC_metadata.csv', row.names = 1)
+
+# Create a new Seurat object
+new_seurat_obj <- CreateSeuratObject(counts = expression_data)
+
+# Add metadata to the new Seurat object
+new_seurat_obj <- AddMetaData(new_seurat_obj, metadata)
+```
+
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE, results='hide'}
+setwd("/N/slate/xuexiao/combine_all_3/Cytotrace")
+new_seurat_obj <- readRDS("Cancer_cell_in_house_magic.rds")
+
+# running CytoTRACE 2 main function - cytotrace2
+# setting is_seurat = TRUE as input is a Seurat object
+# setting slot_type = "counts" as the gene expression data is stored in the "counts" slot of the Seurat object
+# setting species = 'human' 
+
+#Rprof("cytotrace2.out")
+cytotrace2_result <- cytotrace2(new_seurat_obj, is_seurat = TRUE, slot_type = "counts", species = 'human', ncores = 10)
+cytotrace2_result <- readRDS("/Users/xuexiao/Desktop/Lab/Projects/Dedifferentiation/Data/Cancer_cell_in_house_magic_cytotrace.rds")
+
+#sub_seurat_obj <- subset(new_seurat_obj, cells = sample(Cells(new_seurat_obj), 2000))
+#cytotrace2_result <- cytotrace2(sub_seurat_obj, is_seurat = TRUE, slot_type = "counts", species = 'human')
+
+#Rprof(NULL)
+
+#summaryRprof("cytotrace2.out")
+
+# making an annotation dataframe that matches input requirements for plotData function
+annotation <- data.frame(group = new_seurat_obj@meta.data$treatment_phase) %>% set_rownames(., colnames(new_seurat_obj))
+
+# plotting
+plots <- plotData(cytotrace2_result = cytotrace2_result, 
+                  annotation = annotation, 
+                  is_seurat = TRUE)
+
+```
+
+
+```{r}
+# Try different resolution
+
+# Find clusters
+cytotrace2_result <- FindClusters(cytotrace2_result, resolution = 0.5)
+
+# Run UMAP
+cytotrace2_result <- RunUMAP(cytotrace2_result, dims = 1:20)
+
+# Plot UMAP
+DimPlot(cytotrace2_result, reduction = "umap", group.by = "CytoTRACE2_Potency")
+
+```
+
+#### Data Visualization
+```{r}
+data_to_plot <- data.frame(
+  cluster = cytotrace2_result$cell_subtype, 
+  potency_scores = cytotrace2_result$CytoTRACE2_Score
+)
+
+head(data_to_plot)
+```
+
+##### Potency score
+
+UMAP embedding of **predicted absolute potency score**, which is a continuous value ranging from 0 (differentiated) to 1 (totipotent), indicating the absolute developmental potential of each cell.
+
+```{r}
+plots$CytoTRACE2_UMAP
+```
+
+##### Potency category
+
+UMAP embedding of **predicted potency category**, reflecting the discrete classification of cells into potency categories, taking possible values of Differentiated, Unipotent, Oligopotent, Multipotent, Pluripotent, and Totipotent.
+
+```{r}
+plots$CytoTRACE2_Potency_UMAP
+```
+
+##### Relative order
+
+UMAP embedding of predicted relative order, which is based on absolute predicted potency scores normalized to the range 0 (more differentiated) to 1 (less differentiated). Provides the relative ordering of cells by developmental potential.
+
+```{r}
+plots$CytoTRACE2_Relative_UMAP
+```
+
+##### Phenotypes
+
+UMAP colored by mono-cultured (AS) and co-cultured (CAFAS) ovarian cancer cells.
+
+```{r}
+plots$Phenotype_UMAP
+```
+
+##### Potency score distribution by phenotype
+
+A boxplot of predicted potency score separated by phenotype/group from the annotation file. Can be used to assess the distribution of predicted potency scores across different cell phenotypes.
+
+```{r}
+plots$CytoTRACE2_Boxplot_byPheno
+```
+
+##### Potency score of each cluster
+```{r}
+# Boxplot across Seurat clusters
+ggplot(data_to_plot, aes(x = as.factor(cluster), y = potency_scores)) + 
+  geom_boxplot() + 
+  labs(x = "Cluster", 
+       y = "Potency Score", 
+       title = "Potency Score of Seuret Cluster") +
+  scale_fill_brewer(palette = "Paired") + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+
+
+table(cytotrace2_result$seurat_clusters)
+
+```
+
+##### ROR2 expression
+```{r}
+VlnPlot(cytotrace2_result, features = "ROR2", pt.size = .1, group.by = "CytoTRACE2_Potency")
+VlnPlot(cytotrace2_result, features = "FZD4", pt.size = .1, group.by = "CytoTRACE2_Potency")
+VlnPlot(cytotrace2_result, features = "FZD8", pt.size = .1, group.by = "CytoTRACE2_Potency")
+
+```
+
+##### Visualize FZD genes and ROR2 correlation
+```{r}
+library(ggpubr)
+# Frizzled receptors
+frizzled_genes <- c("FZD1", "FZD2", "FZD3", "FZD4", "FZD5", "FZD6", "FZD7", "FZD8", "FZD9", "FZD10")
+
+# Extract expression data
+genes_of_interest <- c("ROR2", frizzled_genes)
+expression_data <- FetchData(cytotrace2_result, vars = genes_of_interest, slot = "count")
+
+# Extrace CytoTRACE2 metadata
+CytoTRACE2_Potency <- cytotrace2_result@meta.data[, "CytoTRACE2_Potency", drop = FALSE]
+CytoTRACE2_Score <- cytotrace2_result@meta.data[, "CytoTRACE2_Score", drop = FALSE]
+
+# Combine expression data with metadata
+expression_data <- cbind(expression_data, CytoTRACE2_Potency, CytoTRACE2_Score)
+
+head(expression_data)
+ROR2 <- expression_data$ROR2
+FZD1 <- expression_data$FZD1
+FZD2 <- expression_data$FZD2
+FZD3 <- expression_data$FZD3
+FZD4 <- expression_data$FZD4
+FZD5 <- expression_data$FZD5
+FZD6 <- expression_data$FZD6
+FZD7 <- expression_data$FZD7
+FZD8 <- expression_data$FZD8
+FZD9 <- expression_data$FZD9
+
+
+```
+```{r}
+# Check Pearson correlation coefficients
+cor(expression_data$ROR2, expression_data$FZD8)
+```
+
+
+```{r}
+# Draw correlation graphs
+ggplot(expression_data, aes(x = ROR2, y = FZD4, colour = CytoTRACE2_Potency)) + 
+  geom_point(size = 1, shape = 21, fill = "white") +
+  stat_cor(p.accuracy = 0.001, r.accuracy = 0.01) + 
+  labs(y = "FZD8", x = "ROR2") + 
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  theme_classic()
+ggplot(expression_data, aes(x = ROR2, y = FZD8, colour = CytoTRACE2_Potency)) +
+  geom_point(size = 1, shape = 21, fill = "white") +  # Apply color mapping to points
+  stat_cor(p.accuracy = 0.001, r.accuracy = 0.01, aes(color = NULL)) +  # Ignore color for stat_cor
+  labs(y = "FZD8", x = "ROR2") +
+  geom_smooth(method = "lm", se = TRUE, color = "red", aes(color = NULL)) +  # Red regression line
+  theme_classic() 
+
+ggplot(expression_data, aes(x = ROR2, y = FZD4)) + 
+  geom_point(size = 3, shape = 21, color = "black", fill = "white") +
+  stat_cor(p.accuracy = 0.001, r.accuracy = 0.01) + 
+  labs(y = "FZD4", x = "ROR2") + 
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  theme_classic()
+ggplot(expression_data, aes(x = ROR2, y = FZD9)) + 
+  geom_point(size = 3, shape = 21, color = "black", fill = "white") +
+  stat_cor(p.accuracy = 0.001, r.accuracy = 0.01) + 
+  labs(y = "FZD9", x = "ROR2") + 
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  theme_classic()
+```
+```{r}
+# Creating the scatter plot
+p <- ggplot(df, aes(x = ROR2, y = FZD8, color = CytoTRACE_Potency)) +
+  geom_point(alpha = 0.6) +  # Adjust point transparency with alpha
+  scale_color_viridis_c() +  # Color scale for CytoTRACE Potency
+  labs(
+    title = "Correlation between ROR2 and FZD8 by CytoTRACE Potency",
+    x = "Expression of ROR2",
+    y = "Expression of FZD8",
+    color = "CytoTRACE Potency"
+  ) +
+  theme_minimal() +  # Using a minimal theme for a cleaner look
+  theme(legend.position = "right")  # Adjust legend position
+
+# Display the plot
+print(p)
+```
+
+
+```{r}
+# Extract stem cell population
+CSC <- subset(cytotrace2_result, idents = c("1"))
+
+expression_data <- FetchData(CSC, vars = genes_of_interest, slot = "count")
+
+```
+
+
+```{r}
+cor(expression_data$ROR2, expression_data$FZD2)
+ggplot(expression_data, aes(x = ROR2, y = FZD7)) + 
+  geom_point(size = 3, shape = 21, color = "black", fill = "white") +
+  stat_cor(p.accuracy = 0.001, r.accuracy = 0.01) + 
+  labs(y = "FZD7", x = "ROR2") + 
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  theme_classic()
+```
+
+#### Save data
+
+```{r}
+saveRDS(cytotrace2_result, file = "~/Library/CloudStorage/GoogleDrive-heinyxiao@gmail.com/My Drive/Lab/Projects/Dedifferentiation/Data/GSE165897_EOC_with_ptime_cytotrace.rds")
+
+# Extract metadata
+new_metadata <- cytotrace2_result@meta.data
+write.csv(new_metadata, "~/Library/CloudStorage/GoogleDrive-heinyxiao@gmail.com/My Drive/Lab/Projects/Dedifferentiation/Data/GSE165897_EOC_new_metadata.csv", row.names = TRUE)
+```
