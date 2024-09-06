@@ -1,0 +1,120 @@
+#!/bin/bash
+#SBATCH -J SortmeRNA
+#SBATCH -p general
+#SBATCH -e SortmeRNA_%j.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=xuexiao@iu.edu
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=4
+
+#SBATCH --time=10:00:00
+
+export PATH="/N/slate/xuexiao/velocyto/velocyto/bin:$PATH"
+
+module unload python
+module load python
+module load singularity/3.6.4
+export LC_ALL=en_US.utf-8
+export LANG=en_US.utf-8
+source activate velocyto
+
+GTF_file=/N/slate/xuexiao/Genome/GRCh38/refdata-gex-GRCh38-2020-A/genes/genes.gtf
+repeat_gtf=/N/slate/xuexiao/Genome/GRCh38/refdata-gex-GRCh38-2020-A/GRCh38_repeat.gtf
+sample_folder=/N/slate/xuexiao/cellranger/HGSOC_Tumor_1
+# Run 10x to generate .loom files
+
+velocyto run10x \
+--samtools-memory 5000 \
+-m /N/slate/xuexiao/Genome/GRCh38/refdata-gex-GRCh38-2020-A/genes/genes.gtf \
+/N/slate/xuexiao/cellranger/HGSOC_Tumor_1 \
+/N/slate/xuexiao/Genome/GRCh38/refdata-gex-GRCh38-2020-A/GRCh38_repeat.gtf
+
+python3
+import velocyto as vcy
+vlm = vcy.VelocytoLoom("/N/slate/xuexiao/cellranger/CAF_AS/velocyto/CAF_AS.loom")
+vlm.normalize("S", size=True, log=True)
+vlm.S_norm  # contains log normalized
+
+# Only first time run - install scvelo
+pip install -U scvelo
+
+python3
+import scvelo as scv
+scv.set_figure_params()
+loom_file='/N/slate/xuexiao/cellranger/CAF/velocyto/CAF.loom'
+adata = scv.read(loom_file, cache=True)
+adata.var_names_make_unique()
+scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=3000)
+# Output: 
+# Filtered out 25766 genes that are detected 20 counts (shared).
+# Normalized count data: X, spliced, unspliced.
+# Extracted 3000 highly variable genes.
+# Logarithmized X.
+
+adata
+
+scv.pl.proportions(adata) # Generate pie graphs showing spliced vs unspliced RNA proportion
+scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
+scv.tl.velocity(adata, mode='stochastic')
+scv.pl.velocity_embedding(adata, basis='umap')
+################################# Merge UMAP with velocities #################################
+# Tutorial - https://github.com/basilkhuder/Seurat-to-RNA-Velocity
+# Run programs in R to generate 3 csv files
+import anndata
+import scvelo as scv
+import pandas as pd
+import numpy as np
+import matplotlib as plt
+# Require installation of rpy2
+conda install rpy2 python=3.6
+
+%load_ext rpy2.ipython
+
+# Read in .loom file
+cd /N/slate/xuexiao/Patient_OC
+Patient_OC = anndata.read_loom("Patient_OC.loom")
+Patient_OC.var_names_make_unique
+
+# Read cluster & CellID info
+sample_obs = pd.read_csv("cellID_obs.csv")
+umap_cord = pd.read_csv("cell_embeddings.csv")
+cell_clusters = pd.read_csv("clusters.csv")
+
+
+
+sample_two = anndata.read_loom("CAF.loom")
+sample_two.var_names_make_unique
+#sample_n = anndata.read_loom("sample_n.loom")
+
+
+
+sample_one = sample_one[np.isin(sample_one.obs.index,sample_obs["x"])]
+sample_two = sample_one[np.isin(sample_two.obs.index,sample_obs["x"])]
+
+
+
+cellID_obs_sample_one = cellID_obs[cellID_obs_sample_one[0].str.contains("coculture_CAFAS_")]
+cellID_obs_sample_two = cellID_obs[cellID_obs_sample_two[0].str.contains("monoculture_CAF23_")]
+sample_one = sample_one[np.isin(sample_one.obs.index, cellID_obs_sample_one)]
+sample_two = sample_one[np.isin(sample_two.obs.index, cellID_obs_sample_two)]
+
+sample_one = sample_one.concatenate(sample_two, sample_three, sample_four)
+
+
+
+module load r/4.0.4
+module load rstudio/1.
+
+pip install -U scvelo
+python3
+import scvelo as scv
+scv.set_figure_params()
+adata = scv.read('/N/slate/xuexiao/cellranger/CAF/velocyto/CAF.loom', cache=True)
+adata.var_names_make_unique()
+adata
+scv.pp.filter_and_normalize(adata, min_shared_counts=20, n_top_genes=3000)
+adata
+scv.pl.proportions(adata)
+scv.pp.moments(adata, n_pcs=30, n_neighbors=30)
+scv.tl.velocity(adata, mode='stochastic')
+scv.pl.velocity_embedding(adata, basis='umap')

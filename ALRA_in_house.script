@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#SBATCH -J 11_Patient_OC_ALRA
+#SBATCH -p general
+#SBATCH -o output_Patient_OC_ALRA.txt
+#SBATCH -e error_Patient_OC_ALRA.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=xuexiao@iu.edu
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem=150G
+#SBATCH --time=10:00:00
+#SBATCH -A r00433
+
+module load miniconda
+#export PATH="/N/u/xuexiao/Carbonate/.conda/envs/xx_r_env"
+conda activate /geode2/home/u110/xuexiao/Quartz/bioinfo
+module load r/4.3.1
+echo "=================start running R script================="
+cd /N/slate/xuexiao/combine_all_3
+Rscript ALRA.R
+

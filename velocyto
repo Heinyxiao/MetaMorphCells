@@ -1,0 +1,28 @@
+#!/bin/bash
+#SBATCH -J velocyto
+#SBATCH -p general
+#SBATCH -e velocyto_%j.err
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=xuexiao@iu.edu
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=4
+#SBATCH --mem=250gb
+#SBATCH --time=10:00:00
+
+export PATH="/N/slate/xuexiao/velocyto/velocyto/bin:$PATH"
+
+module unload python
+module load python
+export LC_ALL=en_US.utf-8
+export LANG=en_US.utf-8
+source activate velocyto
+
+# Run 10x to generate .loom files
+
+velocyto run10x \
+--samtools-memory 5000 \
+-m /N/slate/xuexiao/Genome/GRCh38/refdata-gex-GRCh38-2020-A/GRCh38_repeat.gtf \
+/N/slate/xuexiao/cellranger/HGSOC_Tumor_1 \
+/N/slate/xuexiao/Genome/GRCh38/refdata-gex-GRCh38-2020-A/genes/genes.gtf
+
+source deactivate
