@@ -4,6 +4,9 @@
 ## Project Overview
 Cancer cells can undergo dedifferentiation, acquiring stem-like properties that enhance their ability to proliferate, resist therapies, and metastasize. This project leverages cutting-edge bioinformatics tools to investigate these processes in ovarian cancer at a single-cell resolution.
 
+<img src="https://github.com/Heinyxiao/MetaMorphCells/blob/main/pseudotime_vector_field.png" alt="Pseudotime Vector Field" width="400"/>
+
+
 🔬 Key Topics:
 - Cancer stem cells
 - Dedifferentiation
