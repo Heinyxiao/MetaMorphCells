@@ -1,28 +1,58 @@
-# MetaMorphCells
-MetaMorphCells is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells. This repository contains various scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying cancer cell dedifferentiation.
+# MetaMorphCells: Unveiling Cancer Cell Dedifferentiation
+**MetaMorphCells** is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells. This repository contains various scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying cancer cell dedifferentiation.
 
-# Introduction
-Cancer cells can undergo dedifferentiation, acquiring stem-like properties that enhance their ability to proliferate, resist therapies, and metastasize. This project uses bioinformatics tools to investigate these processes in ovarian cancer cell populations at a single-cell resolution. The repository includes scripts for data preprocessing, perturbation analysis, gene regulatory network inference, and more.
+## Project Overview
+Cancer cells can undergo dedifferentiation, acquiring stem-like properties that enhance their ability to proliferate, resist therapies, and metastasize. This project leverages cutting-edge bioinformatics tools to investigate these processes in ovarian cancer at a single-cell resolution.
 
-# Usage
-Each script and notebook in this repository serves a specific purpose in the analysis pipeline. Below is a brief description of each file to help you understand the workflow.
+🔬 Key Topics:
+- Cancer stem cells
+- Dedifferentiation
+- Single-cell RNA sequencing (scRNA-seq)
+- Bioinformatics tools and workflows
 
-# Methods
+## Repository Structure
+This repository is organized into the following sections:
 
-**ALRA**: Implements the ALRA (Adaptively-thresholded Low Rank Approximation) imputation method (https://github.com/KlugerLab/ALRA) for single-cell RNA-seq data.
+  **1. Data Preprocessing**
+  
+  - Scripts for data cleaning and normalization of scRNA-seq datasets.
+  
+  **2. Analysis Pipeline**
+  
+  - Includes the full pipeline from clustering, differential expression, imputation, to trajectory inference.
+  
+  **3. Gene Regulatory Network Inference**
+  
+  - Tools for building gene regulatory networks and identifying key regulators.
+  
+  **4. Perturbation Analysis**
+  
+  - Scripts to model and analyze perturbations in the dedifferentiation process.
+  
+  **5. Visualization**
+  
+  - Custom visualizations for cell clusters, gene expression, and trajectories.
 
-**CytoTRACE2**: An R markdown file for running CytoTRACE2 (https://github.com/digitalcytometry/cytotrace2), a tool to predict the differentiation state of single cells based on transcriptional data. 
+## Key Tools & Methods
 
-**scGPT**: Applying the scGPT model (https://github.com/bowang-lab/scGPT) to single-cell data for gene expression prediction and analysis, including gene regulatory network (GRN) inference and perturbation analysis tailored for ovarian cancer clinical single-cell RNA-seq datasets.
+| **Tool/Method** | **Description** |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **ALRA**        | Implements the ALRA (Adaptively-thresholded Low Rank Approximation) imputation method [ALRA GitHub](https://github.com/KlugerLab/ALRA)                                         |
+| **CytoTRACE2**  | Predicts differentiation state of single cells based on transcriptional data. [CytoTRACE2 GitHub](https://github.com/digitalcytometry/cytotrace2)                             |
+| **scGPT**       | Applying the scGPT model for gene expression prediction, GRN inference, and perturbation analysis. [scGPT GitHub](https://github.com/bowang-lab/scGPT)                         |
+| **scPopcorn**   | Identification of unique cell clusters using the scPopcorn package. [scPopcorn GitHub](https://github.com/ncbi/scPopCorn)                                                     |
+| **scTour**      | Model training and lineage trajectory inference using scTour. [scTour GitHub](https://github.com/LiQian-XC/sctour)                                                            |
+| **Scanpy**      | Comprehensive scRNA-seq analysis toolkit. [Scanpy GitHub](https://github.com/scverse/scanpy)                                                                                  |
+| **scVelo**      | RNA velocity analysis. [scVelo GitHub](https://github.com/theislab/scvelo_notebooks)                                                                                          |
+| **Velocyto**    | RNA velocity analysis in scRNA-seq data. [Velocyto GitHub](https://github.com/velocyto-team/velocyto.py)                                                                      |
 
-**scPopcorn**: Identification of unique cell clusters using the scPopcorn package (https://github.com/ncbi/scPopCorn).
+## Key Results (Paper under preperation)
+- Identification of dedifferentiation markers in ovarian cancer cells.
+- RNA velocity maps showing trajectory of dedifferentiation.
+- Gene regulatory networks highlighting potential therapeutic targets.
 
-**scTour**: Model training and lineage trajectory inference using the scTour framework (https://github.com/LiQian-XC/sctour).
+## Future Directions
+This project is still evolving. Future updates may include:
 
-**scanpy**: Scanpy (https://github.com/scverse/scanpy) is a toolkit for comprehensive single-cell RNA-seq analysis and spatial transcriptomic analysis. 
-
-**scvelo**: Using scVelo (https://github.com/theislab/scvelo_notebooks) for RNA velocity analysis.
-
-**velocyto**: Velocyto (https://github.com/velocyto-team/velocyto.py) is a tool for RNA velocity analysis in single-cell RNA-seq data.
-
-
+- Integration with spatial transcriptomics data.
+- Deeper perturbation studies using additional clinical datasets.
