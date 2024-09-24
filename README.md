@@ -2,9 +2,10 @@
 **MetaMorphCells** is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells. This repository contains various scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying cancer cell dedifferentiation.
 
 ## Project Overview
-Cancer cells can undergo dedifferentiation, acquiring stem-like properties that enhance their ability to proliferate, resist therapies, and metastasize. This project leverages cutting-edge bioinformatics tools to investigate these processes in ovarian cancer at a single-cell resolution.
+Cancer cells can sometimes "rewind" their development, changing into a more primitive, stem-like state. This transformation gives them special abilities, like growing faster, resisting treatments, and spreading to other parts of the body. 
 
-<img src="https://github.com/Heinyxiao/MetaMorphCells/blob/main/pseudotime_vector_field.png" alt="Pseudotime Vector Field" width="400"/>
+In this project, we use advanced data analysis techniques to study these changes in ovarian cancer cells. By examining individual cells, we aim to uncover how they transform and find clues that might help us develop better treatments in the future. We use single-cell genomic sequencing data to model and predict cancer cell behavior. The graph below illustrates the predicted pathways of how different cancer cell clusters differentiate, based on data from a clinical dataset (GSE165897).
+<img src="https://github.com/Heinyxiao/MetaMorphCells/blob/main/pseudotime_vector_field.png" alt="Pseudotime Vector Field" width="300"/>
 
 
 🔬 Key Topics:
