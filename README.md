@@ -15,30 +15,7 @@ In this project, we combine single-cell RNA-seq, spatial transcriptomics, gene r
 - Gene regulatory network (GRN) inference
 - Perturbation modeling & foundation models
 
-## Repository Structure
-# MetaMorphCells: Unveiling Cancer Cell Dedifferentiation  
-
-MetaMorphCells is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells (CSCs). This repository contains scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying dedifferentiation, therapy resistance, and stemness in ovarian cancer.  
-
----
-
-## Project Overview  
-Cancer cells can sometimes "rewind" their development, reverting to a more primitive, stem-like state. This transformation gives them survival advantages such as therapy resistance, higher proliferative capacity, and metastatic potential.  
-
-In this project, we combine **single-cell RNA-seq, spatial transcriptomics, gene regulatory network inference, and perturbation modeling** to map and predict dedifferentiation trajectories in ovarian cancer. By integrating classical methods and foundation models, we aim to identify molecular drivers and therapeutic vulnerabilities.  
-
----
-
-## 🔬 Key Topics  
-- Cancer stem cells & dedifferentiation  
-- Single-cell transcriptomics (scRNA-seq, spatial)  
-- Gene regulatory network (GRN) inference  
-- Perturbation modeling & foundation models  
-- Integration of computational predictions with experimental validation  
-
----
-
-## 📂 Repository Structure  
+## Repository Structure  
 
 **1. Data Preprocessing**  
 - `GSE222557_data_preprocess.ipynb`  
