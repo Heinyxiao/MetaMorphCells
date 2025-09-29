@@ -1,63 +1,94 @@
 # MetaMorphCells: Unveiling Cancer Cell Dedifferentiation
-**MetaMorphCells** is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells. This repository contains various scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying cancer cell dedifferentiation.
+**MetaMorphCells** is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells (CSCs). This repository contains scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying dedifferentiation, therapy resistance, and stemness in ovarian cancer.
 
 ## Project Overview
-Cancer cells can sometimes "rewind" their development, changing into a more primitive, stem-like state. This transformation gives them special abilities, like growing faster, resisting treatments, and spreading to other parts of the body. 
+Cancer cells can sometimes "rewind" their development, reverting to a more primitive, stem-like state. This transformation gives them survival advantages such as therapy resistance, higher proliferative capacity, and metastatic potential.
 
-In this project, we use advanced data analysis techniques to study these changes in ovarian cancer cells. By examining individual cells, we aim to uncover how they transform and find clues that might help us develop better treatments in the future. We use single-cell genomic sequencing data to model and predict cancer cell behavior. The graph below illustrates the predicted pathways of how different cancer cell clusters differentiate, based on data from a clinical dataset (GSE165897).
+In this project, we combine single-cell RNA-seq, spatial transcriptomics, gene regulatory network inference, and perturbation modeling to map and predict dedifferentiation trajectories in ovarian cancer. By integrating classical methods and foundation models, we aim to identify molecular drivers and therapeutic vulnerabilities.
 
 <img src="https://github.com/Heinyxiao/MetaMorphCells/blob/main/pseudotime_vector_field.png" alt="Pseudotime Vector Field" width="300"/>
 
 
-🔬 Key Topics:
-- Cancer stem cells
-- Dedifferentiation
-- Single-cell RNA sequencing (scRNA-seq)
-- Bioinformatics tools and workflows
+## Key Topics:
+- Cancer stem cells & dedifferentiation
+- Single-cell transcriptomics
+- Gene regulatory network (GRN) inference
+- Perturbation modeling & foundation models
 
 ## Repository Structure
-This repository is organized into the following sections:
+# MetaMorphCells: Unveiling Cancer Cell Dedifferentiation  
 
-  **1. Data Preprocessing**
-  
-  - Scripts for data cleaning and normalization of scRNA-seq datasets.
-  
-  **2. Analysis Pipeline**
-  
-  - Includes the full pipeline from clustering, differential expression, imputation, to trajectory inference.
-  
-  **3. Gene Regulatory Network Inference**
-  
-  - Tools for building gene regulatory networks and identifying key regulators.
-  
-  **4. Perturbation Analysis**
-  
-  - Scripts to model and analyze perturbations in the dedifferentiation process.
-  
-  **5. Visualization**
-  
-  - Custom visualizations for cell clusters, gene expression, and trajectories.
+MetaMorphCells is a bioinformatics research project focused on studying a small population of cancer cells that undergo dedifferentiation into cancer stem cells (CSCs). This repository contains scripts and notebooks for preprocessing, analyzing, and visualizing single-cell sequencing data to explore the molecular mechanisms underlying dedifferentiation, therapy resistance, and stemness in ovarian cancer.  
+
+---
+
+## Project Overview  
+Cancer cells can sometimes "rewind" their development, reverting to a more primitive, stem-like state. This transformation gives them survival advantages such as therapy resistance, higher proliferative capacity, and metastatic potential.  
+
+In this project, we combine **single-cell RNA-seq, spatial transcriptomics, gene regulatory network inference, and perturbation modeling** to map and predict dedifferentiation trajectories in ovarian cancer. By integrating classical methods and foundation models, we aim to identify molecular drivers and therapeutic vulnerabilities.  
+
+---
+
+## 🔬 Key Topics  
+- Cancer stem cells & dedifferentiation  
+- Single-cell transcriptomics (scRNA-seq, spatial)  
+- Gene regulatory network (GRN) inference  
+- Perturbation modeling & foundation models  
+- Integration of computational predictions with experimental validation  
+
+---
+
+## 📂 Repository Structure  
+
+**1. Data Preprocessing**  
+- `GSE222557_data_preprocess.ipynb`  
+- `h5ad_file_process.py`  
+
+**2. Analysis Pipeline**  
+- `scanpy_OC.ipynb`  
+- `scPopcorn.ipynb`  
+- `scTour_infer.py`, `scTour_model_training.py`  
+
+**3. Gene Regulatory Network Inference**  
+- `GRN_in_house_human.py`  
+- `SCimilarity_Gene_Attribution.ipynb`  
+
+**4. Perturbation & Foundation Models**  
+- `geneformer_perturbation.py`  
+- `Tutorial_Perturbation.ipynb`  
+- `ESM-2.ipynb`  
+- `Cell_Type_Classification_Fine_Tuning.ipynb`  
+
+**5. Visualization**  
+- `Attention_Visualization.ipynb`  
+- `pseudotime_vector_field.png`  
 
 ## Key Tools & Methods
 
-| **Tool/Method** | **Description** |
-|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **ALRA**        | Implements the ALRA (Adaptively-thresholded Low Rank Approximation) imputation method [ALRA GitHub](https://github.com/KlugerLab/ALRA)                                         |
-| **CytoTRACE2**  | Predicts differentiation state of single cells based on transcriptional data. [CytoTRACE2 GitHub](https://github.com/digitalcytometry/cytotrace2)                             |
-| **scGPT**       | Applying the scGPT model for gene expression prediction, GRN inference, and perturbation analysis. [scGPT GitHub](https://github.com/bowang-lab/scGPT)                         |
-| **scPopcorn**   | Identification of unique cell clusters using the scPopcorn package. [scPopcorn GitHub](https://github.com/ncbi/scPopCorn)                                                     |
-| **scTour**      | Model training and lineage trajectory inference using scTour. [scTour GitHub](https://github.com/LiQian-XC/sctour)                                                            |
-| **Scanpy**      | Comprehensive scRNA-seq analysis toolkit. [Scanpy GitHub](https://github.com/scverse/scanpy)                                                                                  |
-| **scVelo**      | RNA velocity analysis. [scVelo GitHub](https://github.com/theislab/scvelo_notebooks)                                                                                          |
-| **Velocyto**    | RNA velocity analysis in scRNA-seq data. [Velocyto GitHub](https://github.com/velocyto-team/velocyto.py)                                                                      |
+| Tool/Method      | Description |  
+|------------------|-------------|  
+| **ALRA**         | Low-rank imputation of scRNA-seq data. |  
+| **CytoTRACE2**   | Differentiation potential inference. |  
+| **scGPT**        | Foundation model for scRNA-seq (expression prediction, GRN inference, perturbation). |  
+| **Geneformer**   | Transformer-based biological foundation model for perturbation and fine-tuning. |  
+| **SCimilarity**  | Foundation model for cross-dataset similarity & gene attribution. |  
+| **ESM-2**        | Protein language model for structural biology and ligand–receptor inference. |  
+| **scPopcorn**    | Rare/unique cluster identification. |  
+| **scTour**       | Lineage trajectory inference with deep generative models. |  
+| **Scanpy**       | Comprehensive scRNA-seq analysis toolkit. |  
+| **scVelo / Velocyto** | RNA velocity analysis for dynamic inference. |  
 
 ## Key Results (Paper under preperation)
-- Identification of dedifferentiation markers in ovarian cancer cells.
-- RNA velocity maps showing trajectory of dedifferentiation.
-- Gene regulatory networks highlighting potential therapeutic targets.
+- Identification of dedifferentiation markers in ovarian cancer cells.  
+- RNA velocity and pseudotime maps showing dedifferentiation trajectories.  
+- Gene regulatory networks highlighting candidate therapeutic targets.  
+- Perturbation analysis predicting vulnerabilities of WNT5A-CAF crosstalk.  
+- Early integration with **spatial transcriptomics** confirming regional CSC enrichment.  
+
 
 ## Future Directions
 This project is still evolving. Future updates may include:
-
-- Integration with spatial transcriptomics data.
-- Deeper perturbation studies using additional clinical datasets.
+- Large-scale perturbation analysis with foundation models (Geneformer, scGPT).  
+- Integration of **multi-omics (ATAC, CUT&RUN, proteomics)** for regulatory inference.  
+- Structural modeling of ligand–receptor pairs with **ESM-2 + AlphaFold2**.  
+- Clinical dataset integration for biomarker discovery and patient stratification.  
